@@ -7,7 +7,8 @@ from django.conf import settings
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User
 from urllib.request import urlopen
-
+from django_admin_auth_keycloak.utils import get_keycloak_tokens, \
+    get_user_from_django_session
 
 class DjangoAdminAuthKeycloak(BaseBackend):
     def __init__(self):
@@ -61,11 +62,10 @@ class DjangoAdminAuthKeycloak(BaseBackend):
 
     def validate_sso_tokens(self, user):
         try:
-            result = list(SocialToken.objects.filter(account__user=user,
-                                          account__provider="keycloak"))
+            access_token, refresh_token = get_keycloak_tokens(user)
 
-            access_token = result[0].token
-            refresh_token = result[0].token_secret
+            if not access_token or not refresh_token:
+                return None
 
             public_key = self.public_key
             decoded_access_token = jwt.decode(access_token, public_key,

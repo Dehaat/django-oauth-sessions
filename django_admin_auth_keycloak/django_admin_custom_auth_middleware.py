@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 from django_admin_auth_keycloak.backends import DjangoAdminAuthKeycloak
-
+from django_admin_auth_keycloak.utils import get_user_from_django_session
 
 class DjangoAdminCustomAuthMiddleware:
     def __init__(self, get_response):
@@ -26,7 +26,7 @@ class DjangoAdminCustomAuthMiddleware:
             if hasattr(request, "COOKIES") and request.COOKIES.get(
                     "sessionid") \
                     and self.check_request_path(request):
-                user = self.get_user_from_session(request)
+                user = get_user_from_django_session(request)
                 if not self.custom_auth_obj.authenticate(request,
                                                          user=user):
                     session_key = request.COOKIES.get("sessionid")
@@ -42,13 +42,6 @@ class DjangoAdminCustomAuthMiddleware:
 
         return response
 
-    def get_user_from_session(self, request):
-        session_key = request.COOKIES.get("sessionid")
-        session = Session.objects.get(session_key=session_key)
-        uid = session.get_decoded()
-        user = uid["_auth_user_id"]
-
-        return user
 
     def check_request_path(self, request):
         parts = set(request.path.split("/"))

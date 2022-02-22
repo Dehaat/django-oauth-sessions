@@ -22,6 +22,10 @@ Quick start
         'django_admin_auth_keycloak.django_admin_custom_auth_middleware.DjangoAdminCustomAuthMiddleware',
 ]
 
+3. Update the logout url in urls.py as
+        path('admin/logout/', logout_view, name='logout')
+    import logout_view from django_admin_auth_keycloak
+    e.g from django_admin_auth_keycloak.views import logout_view
 
-3. Start the development server and visit http://localhost:8000/admin/
+4. Start the development server and visit http://localhost:8000/admin/
    to create a django_admin_auth_keycloak (you'll need the Admin app enabled).
